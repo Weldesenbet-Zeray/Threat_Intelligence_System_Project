@@ -1,0 +1,408 @@
+<title>System Architecture — Threat Intelligence Investigation</title>
+<style>
+  :root{
+    --bg:#eef1f6;
+    --surface:#ffffff;
+    --surface-alt:#e4e8f0;
+    --text:#161c2c;
+    --text-dim:#5c6478;
+    --accent:#5b3a8e;
+    --accent-soft:#ece7f6;
+    --border:#d3d8e3;
+    --screen-bg:#161730;
+    --screen-border:#372d54;
+    --low:#2f8f5b;
+    --medium:#a3760a;
+    --high:#bd5f17;
+    --critical:#ab2f2a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1220;
+      --surface:#161e30;
+      --surface-alt:#1d273c;
+      --text:#e7ebf5;
+      --text-dim:#93a0bd;
+      --accent:#b191e8;
+      --accent-soft:#241d3d;
+      --border:#2a3550;
+      --low:#4fd88a;
+      --medium:#f2c94c;
+      --high:#ffa057;
+      --critical:#ff6b6b;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1220;
+    --surface:#161e30;
+    --surface-alt:#1d273c;
+    --text:#e7ebf5;
+    --text-dim:#93a0bd;
+    --accent:#b191e8;
+    --accent-soft:#241d3d;
+    --border:#2a3550;
+    --low:#4fd88a;
+    --medium:#f2c94c;
+    --high:#ffa057;
+    --critical:#ff6b6b;
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f6;
+    --surface:#ffffff;
+    --surface-alt:#e4e8f0;
+    --text:#161c2c;
+    --text-dim:#5c6478;
+    --accent:#5b3a8e;
+    --accent-soft:#ece7f6;
+    --border:#d3d8e3;
+    --low:#2f8f5b;
+    --medium:#a3760a;
+    --high:#bd5f17;
+    --critical:#ab2f2a;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent); color:var(--surface); }
+
+  .page{
+    max-width:920px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
+
+  h1,h2,h3{
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    text-wrap:balance;
+    margin:0;
+  }
+
+  .mono{
+    font-family:"Cascadia Code","Cascadia Mono",Consolas,ui-monospace,"SFMono-Regular",monospace;
+  }
+
+  /* ---------- Masthead ---------- */
+  .eyebrow{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+  }
+  header.masthead{
+    border-bottom:1px solid var(--border);
+    padding-bottom:28px;
+    margin-bottom:40px;
+  }
+  header.masthead h1{
+    font-size:clamp(28px,4vw,40px);
+    font-weight:600;
+    margin-top:10px;
+    letter-spacing:-.01em;
+  }
+  header.masthead p.sub{
+    margin:14px 0 0;
+    max-width:62ch;
+    color:var(--text-dim);
+    font-size:16px;
+  }
+  .meta-row{
+    display:flex;
+    gap:24px;
+    flex-wrap:wrap;
+    margin-top:20px;
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .meta-row span b{ color:var(--text); font-weight:600; }
+
+  /* ---------- Section scaffolding ---------- */
+  section{ margin-bottom:52px; }
+  section > .eyebrow{ display:block; margin-bottom:8px; }
+  section > h2{
+    font-size:23px;
+    font-weight:600;
+    margin-bottom:14px;
+  }
+  section > p.lede{
+    color:var(--text-dim);
+    max-width:68ch;
+    margin:0 0 20px;
+  }
+
+  /* ---------- Diagram "screen" panel ---------- */
+  .screen{
+    background:var(--screen-bg);
+    border:1px solid var(--screen-border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .screen .screen-bar{
+    padding:9px 16px;
+    border-bottom:1px solid var(--screen-border);
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:11.5px;
+    letter-spacing:.06em;
+    color:#a99ed6;
+    text-transform:uppercase;
+  }
+  .screen .screen-body{
+    padding:20px;
+    overflow-x:auto;
+  }
+  .screen .screen-body pre.mermaid{
+    margin:0;
+    display:flex;
+    justify-content:center;
+  }
+
+  /* ---------- Component table ---------- */
+  table.components{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14.5px;
+  }
+  table.components caption{ caption-side:top; text-align:left; }
+  table.components th{
+    text-align:left;
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:11.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    font-weight:600;
+    padding:0 14px 10px 0;
+    border-bottom:1px solid var(--border);
+  }
+  table.components td{
+    padding:12px 14px 12px 0;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  table.components tr:last-child td{ border-bottom:none; }
+  table.components td.layer{ color:var(--text-dim); white-space:nowrap; }
+  table.components td.tech{ font-family:"Cascadia Code",Consolas,ui-monospace,monospace; font-size:13.5px; color:var(--accent); }
+  .table-wrap{ overflow-x:auto; }
+
+  /* ---------- Control chips ---------- */
+  .chip-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px;
+  }
+  .chip{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-top:3px solid var(--accent);
+    border-radius:6px;
+    padding:14px 14px 16px;
+  }
+  .chip .chip-title{
+    font-weight:600;
+    font-size:14.5px;
+    margin-bottom:4px;
+  }
+  .chip .chip-file{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+
+  /* ---------- Risk legend ---------- */
+  .legend{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .legend .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:12.5px;
+  }
+  .legend .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+
+  footer{
+    border-top:1px solid var(--border);
+    padding-top:20px;
+    color:var(--text-dim);
+    font-size:13px;
+  }
+  footer .mono{ color:var(--text-dim); }
+
+  a{ color:var(--accent); }
+
+  @media (max-width:600px){
+    .page{ padding:36px 16px 64px; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <span class="eyebrow">System Architecture — Common Deliverable</span>
+    <h1>Threat Intelligence Investigation Environment</h1>
+    <p class="sub">DSA 4030 Big Data Security · Group 13. Pipeline from synthetic log generation through storage, rule-based detection, external threat-intelligence enrichment, and the security-control layer wrapped around all of it.</p>
+    <div class="meta-row">
+      <span>Scenario: <b>Suspicious IP Investigation</b></span>
+      <span>Storage: <b>SQLite</b></span>
+      <span>Dataset: <b>135,000+ records</b></span>
+      <span>Controls: <b>5 implemented</b></span>
+    </div>
+  </header>
+
+  <section>
+    <span class="eyebrow">Pipeline</span>
+    <h2>End-to-end data and control flow</h2>
+    <p class="lede">Logs are generated, stored, screened by six detection rules, enriched against two free threat-intel sources, scored, and surfaced to a dashboard — with encryption, access control, integrity checks, logging, and backup wrapped around the storage and enrichment stages.</p>
+    <div class="screen">
+      <div class="screen-bar">server_logs.db — architecture view</div>
+      <div class="screen-body">
+<pre class="mermaid">
+%%{init: {'theme':'base', 'themeVariables': {
+  'background':'#161730',
+  'primaryColor':'#241d3d',
+  'primaryTextColor':'#ece9f7',
+  'primaryBorderColor':'#a880e0',
+  'lineColor':'#a880e0',
+  'secondaryColor':'#1d2745',
+  'secondaryBorderColor':'#5b6ea8',
+  'tertiaryColor':'#1a2c33',
+  'tertiaryBorderColor':'#4a9b8e',
+  'clusterBkg':'#1c1730',
+  'clusterBorder':'#372d54',
+  'fontFamily':'Cascadia Code, Consolas, monospace',
+  'fontSize':'13px'
+}}}%%
+flowchart TB
+    subgraph GEN["Part B — Dataset Generation"]
+        A1[User Pool Generator] --> A2[Session Generator]
+        A2 --> A3[Request Generator]
+        A4[Attack Session Generator] --> A3
+        A3 --> A5["final_logs — 135k+ records"]
+    end
+
+    subgraph STORE["Part A — Storage"]
+        A5 --> B1[("SQLite\nthreat_intelligence.db")]
+        B1 --> B1a[server_logs]
+        B1 --> B1b[detected_threats]
+        B1 --> B1c[incident_summary]
+        B1 --> B1d[threat_intelligence]
+    end
+
+    subgraph DETECT["Detection Engine — 6 SQL rules"]
+        B1a --> C1[Brute Force]
+        B1a --> C2[SQL Injection]
+        B1a --> C3[Directory Traversal]
+        B1a --> C4[Port Scan]
+        B1a --> C5["404 Enumeration"]
+        B1a --> C6[High Request Rate]
+        C1 & C2 & C3 & C4 & C5 & C6 --> B1b
+    end
+
+    subgraph TI["Threat Intelligence Enrichment"]
+        B1b --> D1[Suspicious IP Extraction]
+        D1 --> D2[AbuseIPDB API]
+        D1 --> D3[VirusTotal API]
+        D2 & D3 --> D4[Risk Scoring Engine]
+        D4 --> B1d
+    end
+
+    subgraph CTRL["Part C — Security Controls · security_addon/"]
+        E1[secrets_manager.py\nEncryption]
+        E2[access_control.py\nAuthN + RBAC]
+        E3[integrity_check.py\nSHA-256 manifest]
+        E4[audit_logger.py\nAudit trail]
+        E5[backup_recovery.py\nBackup + restore]
+        E1 -.protects.-> D2
+        E1 -.protects.-> D3
+        E2 -.gates.-> B1
+        E3 -.hashes.-> B1
+        E3 -.hashes.-> A5
+        E4 -.logs.-> E1 & E2 & E3 & E5
+        E5 -.backs up.-> B1
+    end
+
+    subgraph TEST["Part D — 6 Security Tests"]
+        F1["security_tests.py"]
+    end
+
+    B1b --> F1
+    E2 --> F1
+    E3 --> F1
+    E5 --> F1
+    D4 --> G["Executive Dashboard +\nfinal_threat_report.csv"]
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Component Summary</span>
+    <h2>What each layer is built from</h2>
+    <div class="table-wrap">
+      <table class="components">
+        <thead>
+          <tr><th>Layer</th><th>Component</th><th>Tool / Tech</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="layer">Data source</td><td>Synthetic web server logs</td><td class="tech">Python, Faker, NumPy</td></tr>
+          <tr><td class="layer">Storage</td><td>Relational store</td><td class="tech">SQLite 3</td></tr>
+          <tr><td class="layer">Detection</td><td>Rule-based engine</td><td class="tech">SQL over server_logs</td></tr>
+          <tr><td class="layer">Threat intel</td><td>External enrichment</td><td class="tech">AbuseIPDB API · VirusTotal API</td></tr>
+          <tr><td class="layer">Encryption</td><td>Secrets + data at rest</td><td class="tech">cryptography.Fernet, PBKDF2</td></tr>
+          <tr><td class="layer">AuthN / RBAC</td><td>Access control</td><td class="tech">bcrypt, JSON role store</td></tr>
+          <tr><td class="layer">Integrity</td><td>Tamper detection</td><td class="tech">SHA-256 manifest</td></tr>
+          <tr><td class="layer">Logging</td><td>Audit trail</td><td class="tech">Python logging, rotating handler</td></tr>
+          <tr><td class="layer">Backup</td><td>Disaster recovery</td><td class="tech">Timestamped SQLite copies</td></tr>
+          <tr><td class="layer">Testing</td><td>Automated suite</td><td class="tech">security_tests.py — 6 tests</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Part C</span>
+    <h2>Security controls, one owner each</h2>
+    <p class="lede">Each module is independently runnable so a different teammate can demo it live during the presentation.</p>
+    <div class="chip-grid">
+      <div class="chip"><div class="chip-title">Encryption</div><div class="chip-file">secrets_manager.py</div></div>
+      <div class="chip"><div class="chip-title">Authentication + RBAC</div><div class="chip-file">access_control.py</div></div>
+      <div class="chip"><div class="chip-title">Integrity verification</div><div class="chip-file">integrity_check.py</div></div>
+      <div class="chip"><div class="chip-title">Audit logging</div><div class="chip-file">audit_logger.py</div></div>
+      <div class="chip"><div class="chip-title">Backup + recovery</div><div class="chip-file">backup_recovery.py</div></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Reference</span>
+    <h2>Risk-level color key</h2>
+    <p class="lede">Used across the risk-scoring dashboard and the Risk Assessment Table deliverable.</p>
+    <div class="legend">
+      <span class="pill"><span class="dot" style="background:var(--low)"></span>Low</span>
+      <span class="pill"><span class="dot" style="background:var(--medium)"></span>Medium</span>
+      <span class="pill"><span class="dot" style="background:var(--high)"></span>High</span>
+      <span class="pill"><span class="dot" style="background:var(--critical)"></span>Critical</span>
+    </div>
+  </section>
+
+  <footer>
+    Generated as Common Deliverable #2 (System Architecture Diagram). See <span class="mono">02_Implementation_Report.md</span>, <span class="mono">03_Security_Testing_Matrix.md</span>, and <span class="mono">04_Risk_Assessment_Table.md</span> for full detail.
+  </footer>
+
+</div>
