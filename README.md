@@ -80,7 +80,17 @@ python run_security_pipeline.py
 
 ---
 
-### Step 2: Test Real-Time Apache Kafka Streaming Engine
+### Step 2: Launch Interactive Streamlit SOC Web Dashboard
+To launch the interactive Security Operations Center (SOC) web application UI:
+
+```bash
+streamlit run streamlit_dashboard.py
+```
+*Access the interactive web dashboard in your browser at `http://localhost:8501` to explore 100,000 logs, query threat intelligence APIs, run RBAC logins, and trigger real-time Kafka streams.*
+
+---
+
+### Step 3: Test Real-Time Apache Kafka Streaming Engine
 To demonstrate real-time topic streaming (`web-access-logs` $\rightarrow$ `security-alerts`):
 
 ```bash
