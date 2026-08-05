@@ -1,6 +1,0 @@
-.env
-*.db
-*.bak
-vault.key
-audit.log
-backups/
