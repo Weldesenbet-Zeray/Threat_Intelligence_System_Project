@@ -7,8 +7,8 @@
 
 
 Group    Members
-1) Weldesenbet Zeray           670553
-2)  Lesala Monaheng              669218                                                                                                                    3) Branton Maungu Mumbua   668926
+1) Weldesenbet Zeray    670553  
+2)  Lesala Monaheng     669218                                                                                                                      3) 3)Branton Maungu Mumbua 668926  
 
 ---
 
