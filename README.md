@@ -7,14 +7,6 @@
 
 ---
 
-## 👥 Group Members
-
-* Weldesenbet Zeray — 670553
-* Lesala Monaheng — 669218
-* Branton Maungu Mumbua — 668926
-
----
-
 # 📖 Project Overview
 
 The **Cyber Threat Intelligence Investigation System** is an end-to-end cybersecurity solution for investigating suspicious activities from web server logs.
