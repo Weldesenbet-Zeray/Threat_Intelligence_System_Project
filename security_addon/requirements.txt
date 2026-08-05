@@ -1,3 +1,0 @@
-cryptography
-bcrypt
-python-dotenv
