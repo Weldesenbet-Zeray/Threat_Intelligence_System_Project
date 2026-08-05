@@ -5,11 +5,10 @@
 > **Group 13 – Threat Intelligence Investigation**  
 > **USIU-Africa**
 
-
-Group    Members
- 1) Weldesenbet Zeray     670553       
- 2)  Lesala Monaheng      669218  <br>                                                                                                                      3) Branton Maungu Mumbua 668926         
-
+Group Members
+1. Weldesenbet Zeray 670553
+2. Lesala Monaheng 669218
+3. Branton Maungu Mumbua 668926
 ---
 
 # 📖 Project Overview
